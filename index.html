@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Autotel. Simple sliced sample player</title>
+		<script type="text/javascript" src="js/nexusUI.js"></script>
+		<script type="text/javascript" src="js/Tone.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js"   integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ="   crossorigin="anonymous"></script>
+  </head>
+	<style>
+	</style>
+<body style="background-color:#ddd;margin:0;padding:0">
+
+</body>
+<script type="text/javascript">
+channel = {
+  "source": "audio/mscomposeKit-03.mp3",
+  "startOffset": 0.046,
+  "endTime": 0.028,
+  "id": "0"
+}
+nx.add( "button" ,{name:"trigger0", parent:$("body")[0], class:"trhee"});
+nx.add( "waveform" ,{name:"cuep0", parent:$("body")[0],width:200,height:30});
+delay=new Tone.JCReverb(0.3);
+delay.wet=0.2;
+channel.sampler=new Tone.Sampler(channel.source,{
+  retrigger:true
+}).connect(delay);
+channel.engine=channel.sampler.player;
+delay.toMaster();
+Tone.Buffer.on('load',function(){
+  nx.widgets["trigger0"].on("*",function(data){
+    if(data.press==1){
+      var loopStart=channel.startOffset;
+      var loopEnd=channel.endTime;
+      channel.sampler.triggerAttack(false,0,1,{start:loopStart,end:loopEnd});
+    }
+  });
+  nx.widgets["cuep0"].setBuffer( channel.engine._buffer._buffer);
+  nx.widgets["cuep0"].select(channel.startOffset*1000,(channel.endTime+channel.startOffset)*1000);
+  nx.widgets["cuep0"].on("*",function(data){
+      channel.startOffset=data.starttime/1000;
+      channel.endTime=(data.stoptime-data.starttime)/1000;
+  });
+})
+
+</script>
+</html>
